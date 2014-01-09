@@ -56,7 +56,7 @@ The RareProb2 can process two kinds genotype file format:
 1. File with reference causal rare varients information and reference panel information
 
 1.1 genotype format ( necessary ):
-        -----------------       
+
         0000101001100010
         0000100000100000A
         0000001000100000A
@@ -64,44 +64,44 @@ The RareProb2 can process two kinds genotype file format:
         0000000000000000C
         0000000000000000C
         0000000000100100C
-        -----------------
 	
+
         The first line of the file represents reference causal rare varients information. And character '1' represents this site is a causal rare varient site, while character '0' represents this site is a noncausal rare varient site.
         Rest of lines represents genotype of each individual. And the 'A' and 'C' of the last character of every line represents the individual is a case or control.
 	
 1.2 reference panel format ( necessary ) :
-        ------------------       
+
         1000010000100101
         0010100010000000
         0000001000100000
         0100100001000000
-        ------------------
 	
+
         the number of site is required to be equal to the number of variant. The reference panel Each element of this matrix represent the genotype of the reference panel. This matrix is necessary since it is needed in the 
 	imputation procedure. In Rareprob2 you do not need to prepare the refererence panel file, since rareprob2 can bootstrap them from cases and controls.				
 
 2. File with reference causal rare varients information and reference panel information
 
 2.1 genotype format ( necessary ):
-        -----------------
+
         0000100000100000A
         0000001000100000A
         0000100001000000A
         0000000000000000C
         0000000000000000C
         0000000000100100C
-        -----------------
         
+
         each of lines represents genotype of each individual. And the 'A' and 'C' of the last character of every line represents the individual is a case or control.
 	
 2.2 reference panel format ( necessary ) :
-        ----------------
+
         1000010000100101
         0010100010000000
         0000001000100000
         0100100001000000
-        ----------------
         
+
         the number of site is required to be equal to the number of variant. The reference panel Each element of this matrix represent the genotype of the reference panel. This matrix is necessary since it is needed in the 
         imputation procedure. In Rareprob2 you do not need to prepare the refererence panel file, since rareprob2 can bootstrap them from cases and controls.				
 
