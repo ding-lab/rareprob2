@@ -1,6 +1,7 @@
-
+print("initialX1....")
 if(omega=="")
 	omega<-1
+
 
 parm<-read.table(paste(tmpfile_path,path,"_parms",sep=""),header=TRUE) ##path from calling parameter
 ##parm<-read.table("./data0000001_parms",header=TRUE)
@@ -13,6 +14,12 @@ pp_value<-pp_value[["p_value"]]
 
 mafseq_path<-c(parm["mafseq_path"][1])
 mafseq_path<-mafseq_path[["mafseq_path"]]
+
+#cancerlist_path<-c(parm["cancerlist_path"][1])
+#cancerlist_path<-cancerlist_path[["cancerlist_path"]]
+
+#siteInfo_path<-c(parm["siteInfo_path"][1])
+#siteInfo_path<-siteInfo_path[["siteInfo_path"]]
 
 P<-matrix(scan(as.character(mafseq_path),0),ncol=m,nrow=5,byrow=TRUE)
 Pcase<-P[1,]
@@ -54,6 +61,7 @@ for(i in 1:m)
 		Wss[i,j]<-1
 		
 	}
+	Wss[i,j]<-0
 	if(omega==1)##mean
 	{
 	  ##Omega_mean[i]<-mean(Wss[i,])
@@ -75,6 +83,8 @@ for(i in 1:m)
   
 	
 }
+
+
 
 
 ##Wss=0,neighbor
@@ -170,7 +180,7 @@ for(i in 1:m)
   {
     ##print(i)
     ##print(P[i])
-    if(P[i]>=0.0001)
+    if(P[i]>=0.001)
     {
       count0<-count0+1
       X[i]=0
@@ -179,9 +189,67 @@ for(i in 1:m)
   }
 }
 
+##
+candidateCancerListExist = FALSE
+siteInfoListExist=FALSE
+if ( file.exists( cancerlist_path ) )
+{
+	cancerList<- read.table(cancerlist_path)
+	cancerList <- t( cancerList )
+	candidateCancerListExist=TRUE
+}
+if ( file.exists( siteInfo_path ) )
+{ 
+	siteInfo <- read.table(siteInfo_path)
+	siteInfo <- t(siteInfo) # length(siteInfo) is equal to m
+	siteInfoListExist=TRUE
+}
+
+
+
+iscontains<-function(x)
+{
+	
+	for( i in 1: length(cancerList) )
+	{
+		if( cancerList[i] == x )
+		{
+			
+			return (TRUE)
+		}
+	}
+
+	return (FALSE)
+}
+
+#2. 
+if( siteInfoListExist == TRUE && candidateCancerListExist == TRUE )
+{
+	for( i in 1:m)
+	{
+		if( iscontains( siteInfo[i] ) )
+			X[i]<-1
+	}
+}
+
+
+#3. 
+
+for( i in 1:m)
+{
+	if( Pcontrol[i] != 0 && Pcase[i] != 0)
+	{
+		if( Pcase[i]/Pcontrol[i] >= 20)
+			X[i] <- 1 
+	}
+}
+
+
+##
+
 xinfo<-data.frame(count0=count0,count1=m-count0)
 
 write(X,paste(tmpfile_path,path,"_initX.seq",sep=""),nc=m)
 write(X,paste(tmpfile_path,path,"_X.seq",sep=""),nc=m)
-
+print("initialX1....")
 

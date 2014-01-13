@@ -47,33 +47,14 @@ genotype::genotype(string fname,int filetype)
 
     switch(filetype)
     {
-        case 1:
-            ifs >> referenceR;
-            ifs >> referenceX;
 
-            pos = find_if(referenceR.begin(),referenceR.end(),isNot01);
-            if(pos != referenceR.end())
-            {
-                //cout << *pos << endl;
-                cerr << "genotype file has wrong format on line 1!" << endl;
-                exit(1);
-            }
-            pos = find_if(referenceX.begin(),referenceX.end(),isNot01);
-            if(pos != referenceX.end())
-            {
+		case 1:
+            ifs >> str;
+            numSite = str.length() - 1;
+            ifs.seekp(fstream::beg);
 
-                cerr << "genotype file has wrong format on line 2!" << endl;
-                exit(1);
-            }
+            lineCount = 1;
 
-            if( referenceR.length()!=referenceX.length())
-            {
-                cerr << "genotype file has wrong format on line 1 or 2!" << endl;
-                exit(1);
-            }
-
-            numSite = referenceX.length();
-            lineCount = 3;
             break;
         case 2:
             ifs >> referenceX;
@@ -88,14 +69,7 @@ genotype::genotype(string fname,int filetype)
 
             lineCount = 2;
             break;
-        case 3:
-            ifs >> str;
-            numSite = str.length() - 1;
-            ifs.seekp(fstream::beg);
-
-            lineCount = 1;
-
-            break;
+        
         default:
             cerr << "wrong file format!" << endl;
             exit(1);
@@ -180,6 +154,11 @@ genotype::genotype(string fname,int filetype)
     this->numCase = indA;
     this->numControl = indC;
     this->numCaseControl = ind;
+
+	/*------------------------------*/
+	
+		
+	
 
 	/*-----------caculate maf------------*/
 	for(size_t i = 0;i<(unsigned)numSite;i++)

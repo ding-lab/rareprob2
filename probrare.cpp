@@ -25,117 +25,69 @@ int main(int argc,char *argv[])
     string tmpfile_path = "tmp/";
 	string RFile ="";
 	string RFileName="";
+
+	string cancerlist_path="./data/CancerGeneListV2";
+	string siteInfo_path="";
 	
     /**
     filetype = 0; error;
-    filetype = 1; data file hasn't R region or reference X information
-    filetype = 2; data file has only reference X information
-    filetype = 3; data file has both R and X information
+    filetype = 1; data file hasn't reference X information
+    filetype = 2; data file has reference X information
     */
     int filetype = 0;
 
 	if( argc == 2 )
 	{
-        if (argv[1][0] == '-')
+		if ( argv[1][0] == '-')
         {
-            arg_err();
+			cout<<"error usage of rareprob2"<<endl;
             exit(1);
         }
         filepath = argv[1];
-        filetype = 3;
+        filetype = 1;
 	}
-	else if(argc == 3)
+	else if( argc==3)
 	{
-        if (argv[1][0] != '-')
-        {
-            arg_err();
+		if( argv[1][0] == '-' && argv[1][1] == 'x' )
+		{
+			filetype=2;
+			filepath = argv[2];
+		}
+		else if ( argv[1][0] != '-' )
+		{
+			filepath = argv[1];
+			siteInfo_path = argv[2];
+			filetype = 1;
+		}
+		else 
+		{
+			cout<<"error usage of rareprob2"<<endl;
             exit(1);
-        }
-        if (argv[1][1] != 'r' && argv[1][1] != 'x')
-        {
-            arg_err();
-            exit(1);
-        }
-        if ( argv[1][1] == 'x')
-        {
-
-            filetype = 2;
-        }
-        if ( argv[1][1] == 'r' )
-        {
-            filetype = 1;
-        }
-        filepath = argv[2];
+		}	
 	}
-	else if(argc == 4)
+	else if ( argc == 4 )
 	{
-        if ( argv[1][0] != '-' || argv[1][1] != 'o')
-        {
-            arg_err();
+		if( argv[1][0] == '-' && argv[1][1] == 'x' )
+		{
+			filetype = 2;
+			filepath = argv[2];
+			siteInfo_path = argv[3];
+		}
+		else
+		{
+			cout<<"error usage of rareprob2"<<endl;
             exit(1);
-        }
-
-        omega = argv[2];
-
-        double o = atof(omega);
-
-        if( o <= 0 || o >= 1)
-        {
-            cerr << "omega " << omega << " is an illegal value! Please set omega in (0,1)." << endl;
-            exit(1);
-        }
-        filetype = 3;
-        filepath = argv[3];
-	}
-	else if(argc == 5)
-	{
-        if (argv[1][0] != '-')
-        {
-            arg_err();
-            exit(1);
-        }
-
-        if ( argv[1][1] == 'x')
-        {
-            filetype = 2;
-        }else if ( argv[1][1] == 'r' )
-        {
-            filetype = 1;
-        }
-        else
-        {
-            arg_err();
-            exit(1);
-        }
-
-        if ( argv[2][0] != '-' || argv[2][1] != 'o')
-        {
-            arg_err();
-            exit(1);
-        }
-
-        omega = argv[3];
-
-        double o = atof(omega);
-
-        if( o <= 0 || o >= 1)
-        {
-            cerr << "omega " << omega << " is an illegal value! Please set omega in (0,1)." << endl;
-            exit(1);
-        }
-
-        filepath = argv[4];
+		}	
 	}
 	else
 	{
-
-        arg_err();
+		cout<<"error usage of rareprob2"<<endl;
         exit(1);
 	}
-
+	
+	
     genotype g(string(filepath),filetype);
-
-	num_site=g.getNumSite();
+	
 	ofstream os;
 
 	/**save Maf vector And Count vector to file**/
@@ -150,7 +102,7 @@ int main(int argc,char *argv[])
 
 	vector<double> mafCase = g.getMafCase();
 	vector<double> mafControl = g.getMafControl();
-	vector<double> maf = g.getMaf();
+	vector<double> maf = g.getMaf();     //zhe li shi ruhe qiu chu lai de?mei you fang fa ti !
 	vector<int> countCase = g.getCountCase();
 	vector<int> countControl = g.getCountControl();
 	for(vector<double>::const_iterator iter = mafCase.begin();iter!=mafCase.end();iter++)
@@ -204,10 +156,10 @@ int main(int argc,char *argv[])
 	    cerr << "open file error1" << endl;
 	    exit(1);
 	}
-	os <<"filename m n na nc p_value mafseq_path"<<endl;
+	os <<"filename m n na nc p_value mafseq_path cancerlist_path siteInfo_path"<<endl;
 	os  <<g.getFilename()<<" "<<g.getNumSite()<<" "
         <<g.getNumCaseControl()<<" "<<g.getNumCase()<<" "
-        <<g.getNumControl()<<" "<<P_VALUE<<" "<<maf_seqpath<<endl;
+        <<g.getNumControl()<<" "<<P_VALUE<<" "<<maf_seqpath<<" "<<cancerlist_path<<" "<<siteInfo_path<<endl;
 	os.clear();
 	os.close();
 
@@ -230,8 +182,11 @@ int main(int argc,char *argv[])
 	os.clear();
 	os.close();
 	/**---execute r script to initial Xseq----**/
-
-    string cmd = "Rscript -e \"tmpfile_path='"+ tmpfile_path +"'\" -e \"omega="+string(omega)+"\" -e \"path='"+ g.getFilename() +"'\" -e \"source('./r/initialX.r')\" >>"+ tmpfile_path + g.getFilename() + "_out_temp 2>>"+ tmpfile_path + g.getFilename() +"_out_error";
+	
+    string cmd = "Rscript -e \"tmpfile_path='"+ tmpfile_path +"'\" -e \"omega="+string(omega)+"\" -e \"path='"+ g.getFilename() + "'\" -e \"cancerlist_path='"+ cancerlist_path+ "'\" -e \"siteInfo_path='"+ siteInfo_path +"'\" -e \"source('./r/initialX.r')\" >>"+ tmpfile_path + g.getFilename() + "_out_temp 2>>"+ tmpfile_path + g.getFilename() +"_out_error";
+/*    string cmd = "Rscript -e \"tmpfile_path='"+ tmpfile_path +"'\" -e \"omega="+string(omega)+"\" -e \"path='"+ g.getFilename() +"'\" -e \"source('./r/initialX.r')\" >>"+ tmpfile_path + g.getFilename() + "_out_temp 2>>"+ tmpfile_path + g.getFilename() +"_out_error";
+*/
+	
     system(cmd.c_str());
 
 	/**-----initial R using HMM-----**/
@@ -277,11 +232,12 @@ int main(int argc,char *argv[])
 */
 	/**----executing parameters estimating rscript----**/
 
-    cmd = "Rscript -e \"tmpfile_path='" + tmpfile_path +"'\" -e \"path='"+ g.getFilename() +"'\" -e \"source('./r/estimate.r')\" >>"+  tmpfile_path + g.getFilename() + "_out_temp 2>>"+  tmpfile_path + g.getFilename() +"_out_error";
+    cmd = "Rscript -e \"tmpfile_path='" + tmpfile_path + "'\" -e \"path='"+ g.getFilename() +"'\" -e \"source('./r/estimate.r')\" >>"+  tmpfile_path + g.getFilename() + "_out_temp 2>>"+  tmpfile_path + g.getFilename() +"_out_error";
+	
 	system(cmd.c_str());
 
 	/**--------statistic of result------------**/
-
+	
 	int countx=0;
 	int count_result=0;
 	int count_right=0;
@@ -298,12 +254,12 @@ int main(int argc,char *argv[])
 	ifstream ifsx_result;//file _resultX.seq
 	ifstream ifsr;
 
-
 	ifsp.open((tmpfile_path+g.getFilename()+"_P_VALUE").c_str());
 	ifss.open((tmpfile_path+g.getFilename()+"_STATISTIC").c_str());
 	if(!ifsp)
 	{
 	    cerr << "open file error5" << endl;
+		cerr<<num_site<<endl;
 	    exit(1);
 	}
 	if(!ifss)
@@ -395,26 +351,26 @@ int main(int argc,char *argv[])
     }
     cout << endl;
 
-    if(filetype == 1 || filetype == 2)
+    if(filetype ==  2)
     {
         cout << "count of x/selected_X/right_x: " << countx << " "
 								<< count_result << " "
 								<< count_right << endl;
     }
-
+/*
     if(filetype == 1)
     {
        	cout << "count of R/selected_R/right_R: " << countr << " "
 								<< countr_result << " "
 								<< countr_right << endl;
     }
-
+*/
 	/**---clear the temp files-----**/
-//	RFile = (tmpfile_path+g.getFilename()+"_resultR.seq");
-//	RFileName = ("./RFile/"+g.getFilename()+"_resultR.seq");
 	string cpcmd = "cp ./tmp/"+g.getFilename()+"_resultR.seq ./RFile/"+g.getFilename();	
 	system(cpcmd.c_str());
     rmtmpfile(g.getFilename());
+
+	cout<<" "<<endl;
 
     return 0;
 }

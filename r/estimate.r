@@ -1,5 +1,5 @@
 source("./r/function.r")
-
+print("function.....\n")
 parm<-read.table(paste(tmpfile_path,path,"_parms",sep=""),header=TRUE) ##path from calling parameter
 
 m<-c(parm["m"][1])
@@ -364,8 +364,9 @@ repeat{
 
 }
 
-
+print("pvalue1.....\n")
 source("./r/P_value.r")
+print("pvalue2.....\n")
 
 
 
@@ -382,14 +383,19 @@ for (i in 1:m)
 }
 
 z<-2*temp1/(sqrt(2/n)*sqrt(temp2))
-
+print("z=")
+print(z)
+print("pvalue3.....\n")
 p_value<-P_value(pnorm,z,side=0)
+print("pvalue4.....\n")
 
 write(x,paste(tmpfile_path,path,"_resultX.seq",sep=""),nc=m,sep="")
 write(r,paste(tmpfile_path,path,"_resultR.seq",sep=""),nc=m,sep="")
 
+#road<-paste(tmpfile_path,path,"_P_VALUE",sep="")
 
 write(p_value,paste(tmpfile_path,path,"_P_VALUE",sep=""))
+
 
 write(z,paste(tmpfile_path,path,"_STATISTIC",sep=""))
 
